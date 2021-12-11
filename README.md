@@ -2,6 +2,12 @@
 
 Library to working with adf.ly on Golang
 
+installation
+
+```bash
+go get github.com/Sagleft/go-adfly
+```
+
 usage example:
 
 ```go
