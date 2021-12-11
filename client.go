@@ -1,7 +1,7 @@
 package goadfly
 
 const (
-	apiURL = "https://adf.ly/v1/"
+	apiURL = "https://api.adf.ly/v1/"
 )
 
 // Client - ad.fly API client

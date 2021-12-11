@@ -1,25 +1,42 @@
 package goadfly
 
 import (
-	"log"
-	"time"
+	"encoding/json"
+	"errors"
+	"net/url"
 )
 
 // ShortenLink - shorten new link
-func (c *Client) ShortenLink(url string) (string, error) {
+func (c *Client) ShortenLink(urlToShorten string) (string, error) {
 	endpoint := apiURL + "shorten"
-	requestData := map[string]interface{}{
-		"_user_id":   c.UserID,
-		"_api_key":   c.APIKeyPublic,
-		"_timestamp": time.Now().Unix(),
-		"url":        url,
-	}
-	response, err := c.sendPostRequest(endpoint, requestData)
+	params := url.Values{}
+	params.Add("url", urlToShorten)
+
+	response, err := c.sendPostRequest(endpoint, params)
 	if err != nil {
 		return "", err
 	}
 
-	log.Println(string(response)) // TEMP
+	result := adflyLinkShortenResponse{}
+	err = json.Unmarshal(response, &result)
+	if err != nil {
+		return "", err
+	}
 
-	return "", nil // TODO
+	// find first error
+	if len(result.Errors) > 0 {
+		for _, firstError := range result.Errors {
+			errMsg := firstError.Messsage
+			if firstError.Messsage == "" {
+				errMsg = "unknown error"
+			}
+			return "", errors.New(errMsg)
+		}
+	}
+
+	for _, firstURLResult := range result.Data {
+		return firstURLResult.ShortURL, nil
+	}
+
+	return "", errors.New("failed to find short url in response")
 }

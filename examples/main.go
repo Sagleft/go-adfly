@@ -22,8 +22,10 @@ func main() {
 	apiKeyPublic := os.Getenv("API_PUBLIC")
 
 	client := goadfly.NewClient(userID, apiKeyPublic)
-	_, err = client.ShortenLink("https://example.com")
+	shortLink, err := client.ShortenLink("https://example.com")
 	if err != nil {
 		log.Fatalln(err)
 	}
+
+	log.Println(shortLink)
 }

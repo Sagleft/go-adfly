@@ -1,36 +1,22 @@
 package goadfly
 
 import (
-	"bytes"
-	"encoding/json"
 	"errors"
 	"io/ioutil"
 	"net/http"
+	"net/url"
+	"strconv"
 )
 
-func (c *Client) sendPostRequest(url string, data map[string]interface{}) ([]byte, error) {
-	// declare http client
-	httpClient := &http.Client{}
-
-	// encode data fields to json
-	dataBytes, err := json.Marshal(data)
-	if err != nil {
-		return nil, errors.New("failed to encode request data to json: " + err.Error())
-	}
+func (c *Client) sendPostRequest(requestURL string, params url.Values) ([]byte, error) {
+	params.Add("_user_id", strconv.FormatInt(c.UserID, 10))
+	params.Add("_api_key", c.APIKeyPublic)
 
 	// declare HTTP Method and Url
-	req, err := http.NewRequest("POST", url, bytes.NewBuffer(dataBytes))
+	resp, err := http.PostForm(requestURL, params)
 	if err != nil {
-		return nil, errors.New("failed to send POST request: " + err.Error())
+		return nil, err
 	}
-
-	// set cookie
-	/*if c.AuthToken != "" {
-		req.Header.Set("Cookie", "auth_token="+c.AuthToken)
-	}*/
-
-	// send request
-	resp, err := httpClient.Do(req)
 
 	// read response
 	body, err := ioutil.ReadAll(resp.Body)
