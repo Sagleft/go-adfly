@@ -1,13 +1,28 @@
 package main
 
 import (
-	"goadfly"
 	"log"
+	"os"
+	"strconv"
+
+	goadfly "github.com/Sagleft/go-adfly"
 )
 
 func main() {
-	client := goadfly.NewClient(0, "") // TODO
-	_, err := client.ShortenLink("https://example.com")
+	userIDRaw := os.Getenv("USER_ID")
+	if userIDRaw == "" {
+		log.Fatalln("user ID is not set by env")
+	}
+
+	userID, err := strconv.ParseInt(userIDRaw, 10, 64)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	apiKeyPublic := os.Getenv("API_PUBLIC")
+
+	client := goadfly.NewClient(userID, apiKeyPublic)
+	_, err = client.ShortenLink("https://example.com")
 	if err != nil {
 		log.Fatalln(err)
 	}
